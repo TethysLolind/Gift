@@ -6,4 +6,8 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content></ion-content>
+<ion-content>
+  <ion-chip *ngIf="$hasNetwork|async" color="warining">
+    <ion-label>Offline</ion-label>
+  </ion-chip>
+</ion-content>
