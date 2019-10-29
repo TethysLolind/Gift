@@ -41,9 +41,10 @@ export class TabsPage implements OnInit, OnDestroy {
 
   checkForUpdate() {
     if (this.updateService.isEnabled) {
-      await this.updateService.checkForUpdate();
+      return this.updateService.checkForUpdate();
     }
   }
+
   onUpdateAvailable(event: UpdateAvailableEvent) {
     console.log(event);
     let opts: AlertOptions;
@@ -72,8 +73,7 @@ export class TabsPage implements OnInit, OnDestroy {
       // enterAnimation?: AnimationBuilder;
       // leaveAnimation?: AnimationBuilder;
     };
-    const alert = await this.alertControl.create(opts);
-    alert.present();
+    this.alertControl.create(opts).then(e => e.present());
   }
 
 }

@@ -7,7 +7,9 @@
 </ion-header>
 
 <ion-content>
-  <ion-chip *ngIf="$hasNetwork|async" color="warining">
+  <ion-chip *ngIf="!$hasNetwork|async" color="warining">
     <ion-label>Offline</ion-label>
   </ion-chip>
+  <baidu-map [options]="opts"></baidu-map>
+  <ion-button class="loc" (click)="getLocation()" >Locate</ion-button>
 </ion-content>
