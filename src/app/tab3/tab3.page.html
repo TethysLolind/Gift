@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Tab Three
+      Location
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -11,5 +11,10 @@
     <ion-label>Offline</ion-label>
   </ion-chip>
   <baidu-map [options]="opts"></baidu-map>
-  <ion-button class="loc" (click)="getLocation()" >Locate</ion-button>
+  <ion-fab vertical="bottom" horizontal="center" slot="fixed">
+    <ion-fab-button (click)="getLocation()">
+      <ion-icon name="locate"></ion-icon>
+    </ion-fab-button>
+</ion-fab>
+
 </ion-content>

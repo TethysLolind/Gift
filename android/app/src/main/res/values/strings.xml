@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">gift</string>
+    <string name="title_activity_main">gift</string>
+    <string name="package_name">com.bozhang</string>
+    <string name="custom_url_scheme">com.bozhang</string>
+</resources>

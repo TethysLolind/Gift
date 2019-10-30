@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  signalrUrl: 'xxxxx'
+  signalrUrl: 'https://localhost:5000/api/v1/msgHub'
 };
 
 /*
