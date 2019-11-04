@@ -1,19 +1,26 @@
 import { Component, OnInit, ApplicationRef, OnDestroy } from '@angular/core';
 import { SwUpdate, UpdateAvailableEvent } from '@angular/service-worker';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { Subscription, interval, concat } from 'rxjs';
 import {first} from 'rxjs/operators';
-import { AlertOptions } from '@ionic/core';
+import { AlertOptions, ToastOptions } from '@ionic/core';
+import { Plugins } from '@capacitor/core';
+import { BroadcastService } from '../services/broadcast.service';
 
+const { Network } = Plugins;
 @Component({
   selector: 'app-tabs',
   templateUrl: 'tabs.page.html',
   styleUrls: ['tabs.page.scss']
 })
 export class TabsPage implements OnInit, OnDestroy {
+  status: any;
   constructor(private updateService: SwUpdate,
+    private broadcaster: BroadcastService,
     private alertControl: AlertController,
-    private appRef: ApplicationRef) {
+    private toastControl: ToastController,
+    private appRef: ApplicationRef,
+    ) {
   }
   subscriptions: Subscription[] = [];
 
@@ -22,7 +29,56 @@ export class TabsPage implements OnInit, OnDestroy {
     this.subscriptions.forEach(s => s.unsubscribe());
   }
   ngOnInit(): void {
-    this.initUpdater();
+    this.monitorNetwork();
+    this.monitorChatStatus();
+
+  }
+  monitorChatStatus() {
+   this.broadcaster.msgReceiveBus.subscribe((msg) => {
+     const toastOpt: ToastOptions = {
+      // header?: string;
+      message: 'a new message from ' + msg.fromGuid,
+      // cssClass?: string | string[];
+      duration: 2000,
+      // buttons?: (ToastButton | string)[];
+      // showCloseButton?: boolean;
+      // closeButtonText?: string;
+      position: 'bottom' ,
+      // translucent?: boolean;
+      animated: true,
+      // color?: Color;
+      // mode?: Mode;
+      // keyboardClose?: boolean;
+      // id?: string;
+      // enterAnimation?: AnimationBuilder;
+      // leaveAnimation?: AnimationBuilder;
+     };
+    this.toastControl.create(toastOpt);
+   });
+  }
+
+  async monitorNetwork() {
+
+     Network.addListener('networkStatusChange', (nwStatus) => {
+      const toastOpt: ToastOptions = {
+        message: 'network changes:' + nwStatus.connectionType,
+        duration: 2000,
+        position: 'bottom' ,
+        animated: true,
+       };
+      this.toastControl.create(toastOpt);
+      if (!nwStatus.connected) {
+        this.initUpdater();
+      }
+    });
+    // To stop listening:
+    // handler.remove();
+
+    // Get the current network status
+    this.status = await Network.getStatus();
+
+
+
   }
 
   initUpdater() {

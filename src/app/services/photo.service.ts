@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 
 import { Plugins, CameraResultType } from '@capacitor/core';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
 
 const { Camera } = Plugins;
 
@@ -16,13 +18,13 @@ export class PhotoService {
 
   public photos: Photo[] = [];
 
-  constructor( private storage: Storage) { }
+  constructor( private storage: Storage, private http: HttpClient) { }
 
   async takePicture() {
     const image = await Camera.getPhoto({
       quality: 90,
       allowEditing: true,
-      resultType: CameraResultType.Uri
+      resultType: CameraResultType.Base64
     });
     // image.webPath will contain a path that can be set as an image src.
     // You can access the original file using image.path, which can be
@@ -31,7 +33,8 @@ export class PhotoService {
     const imageUrl = image.webPath;
     // Can be set to the src of an image now
     this.photos.unshift({
-      data: 'data:image/jpeg;base64,' + image.base64String
+      data: 'data:image/jpeg;base64,' + image.base64String,
+      text: 'dd'
     });
 
     // Save all photos for later viewing
@@ -44,8 +47,41 @@ export class PhotoService {
     });
   }
 
+
+   getImages() {
+     const promiseArray = new Array<Promise<Blob>>();
+    // const imageBlobs = new Array<Blob>();
+    for (let index = 0; index < 32; index++) {
+      let fileName: string;
+      if (index < 9) {
+        fileName = '0' + (index + 1);
+      } else {
+        fileName = (index + 1).toString();
+      }
+     const promise = this.http.get('/assets/image/' + fileName + '.jpg', {responseType: 'blob'}). pipe(
+        map(res => {
+          if (index === 1) {
+            console.log(res);
+          }
+          const blob = new Blob([res], {
+            type: 'image/jpg'
+          });
+          return blob;
+        }),
+      ).toPromise();
+      promiseArray.push(promise);
+
+    }
+
+    return promiseArray;
+
+
+
+  }
+
 }
 
-class Photo {
+export class Photo {
   data: any;
+  text: string;
 }

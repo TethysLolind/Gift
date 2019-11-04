@@ -1,5 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { PhotoService } from '../services/photo.service';
+import {
+  Component,
+  OnInit
+} from '@angular/core';
+import {
+  PhotoService, Photo
+} from '../services/photo.service';
+import { URL } from 'url';
+
 
 @Component({
   selector: 'app-tab2',
@@ -9,15 +16,26 @@ import { PhotoService } from '../services/photo.service';
 export class Tab2Page implements OnInit {
   currentImage: any;
 
-  image: ImageBitmap;
-  constructor(public photoService: PhotoService) {  }
+  imagesBlob: Array<Blob>;
+  constructor(public photoService: PhotoService) {}
 
-  ngOnInit() {
-    this.photoService.loadSaved();
+  async ngOnInit() {
+    // this.photoService.loadSaved();
+    this.imagesBlob = await Promise.all( this.photoService.getImages());
+    const photos = this.imagesBlob.map(blob => {
+      const photo: Photo = {
+        data: webkitURL.createObjectURL(blob),
+        text: 'S',
+      };
+      return photo;
+    });
+    this.photoService.photos = photos;
+    console.log(this.photoService.photos.length);
+
+
+
+
+
 
   }
-
-
- 
-
 }

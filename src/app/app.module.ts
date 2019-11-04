@@ -13,6 +13,7 @@ import { IonicStorageModule } from '@ionic/storage';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { BaiduMapModule } from 'angular2-baidu-map';
+import { HttpClientModule } from '@angular/common/http';
 // ss
 @NgModule({
   declarations: [AppComponent],
@@ -20,6 +21,7 @@ import { BaiduMapModule } from 'angular2-baidu-map';
   imports: [BrowserModule, IonicModule.forRoot(),
     AppRoutingModule,
     IonicStorageModule.forRoot(),
+    HttpClientModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [

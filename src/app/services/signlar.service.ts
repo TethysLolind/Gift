@@ -6,9 +6,6 @@ import {
   environment
 } from 'src/environments/environment';
 import {
-  from
-} from 'rxjs';
-import {
   BroadcastService
 } from './broadcast.service';
 import {
@@ -25,6 +22,7 @@ export class SignlarService {
   private _timer: Date;
   private _signalrUrl: string;
   private _signalrConnection: signalR.HubConnection;
+  retryCount = 0;
 
   constructor(private _broadcastService: BroadcastService) {
     this._signalrUrl = environment.signalrUrl;
@@ -36,12 +34,42 @@ export class SignlarService {
 
       this._signalrConnection = new signalR.HubConnectionBuilder()
         .withUrl(this._signalrUrl, {
-          skipNegotiation: true,
-          transport: signalR.HttpTransportType.WebSockets,
+          // skipNegotiation: true,
+          // transport: signalR.HttpTransportType.WebSockets,
         })
         .configureLogging(signalR.LogLevel.Information)
         .build();
-      this._signalrConnection.serverTimeoutInMilliseconds = 100000;
+      this._signalrConnection.serverTimeoutInMilliseconds = 1000000;
+
+
+      this._signalrConnection.on('MessageSendFail', (msg: MessageDto) => {
+        this.retryCount++;
+        if (this.retryCount <= 3) {
+          this.sendMsg(msg);
+        }
+      });
+
+      this._signalrConnection.on('MessageReceive', (msg: MessageDto) => {
+        this._broadcastService.msgReceiveBus.next(msg);
+        // this._signalrConnection.invoke('ReceivedMsg', this._timer.getMilliseconds) ;
+      });
+
+      this._signalrConnection.on('LoginInSuccess', (time: number) => {
+        this._broadcastService.toastBus.next('login in success at ' + time);
+      });
+
+      this._signalrConnection.on('LoginOutSuccess', (time: number) => {
+        this._broadcastService.toastBus.next('login out success at ' + time);
+      });
+
+      this._signalrConnection.on('LoginInFail', (time: number) => {
+        this._broadcastService.toastBus.next('login in failed at ' + time);
+      });
+
+      this._signalrConnection.on('LoginOutFail', (time: number) => {
+        this._broadcastService.toastBus.next('login out failed at ' + time);
+      });
+
 
       return this._signalrConnection.start();
     } else {
@@ -52,13 +80,7 @@ export class SignlarService {
 
   public loginIn(dto: LoginInfoDto) {
     this.initSignalr().then(() => {
-      this._signalrConnection.on('RetriveMsg', (msg: MessageDto) => {
-        this._broadcastService.msgReceiveBus.next(msg);
-        this._signalrConnection.invoke('ReceivedMsg', this._timer.getMilliseconds) ;
-      });
-
       this._signalrConnection.invoke('loginIn', dto)
-      .then(res => {this._broadcastService.loginToastBus.next(res); })
       .catch(error => {
         console.error(error.toString());
       });
@@ -69,7 +91,6 @@ export class SignlarService {
   public loginOut(dto: LoginInfoDto) {
     this.initSignalr().then(() => {
         this._signalrConnection.invoke('loginOut', dto)
-        .then(res => {this._broadcastService.loginToastBus.next(res); })
         .catch(error => {
           console.error(error.toString());
         });
@@ -80,15 +101,13 @@ export class SignlarService {
 
   public sendMsg(dto: MessageDto) {
     this.initSignalr().then(() => {
-      this._signalrConnection.invoke('SendMsg', dto)
-      .then(() => {
-        this._broadcastService.msgSendedBus.next(true);
-       })
+      this._signalrConnection.invoke('MessageExchange', dto)
       .catch(error => {
-        this._broadcastService.msgSendedBus.next(false);
         console.error(error.toString());
       });
     });
   }
+
+
 
 }

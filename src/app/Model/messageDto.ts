@@ -1,5 +1,8 @@
 export interface MessageDto {
-    text: string;
-    timestamp: string;
-    userId: string;
+    fromGuid: string;
+    toGuid: string;
+    timestamp: number;
+    exchanged: boolean;
+    msgId: string;
+    context: string;
 }

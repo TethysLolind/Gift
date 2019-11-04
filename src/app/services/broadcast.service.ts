@@ -6,14 +6,17 @@ import { Subject } from 'rxjs';
   providedIn: 'root'
 })
 export class BroadcastService {
-  msgSendedBus: Subject<boolean>;
-  loginToastBus: Subject<string>;
+  msgSendBus: Subject<MessageDto>;
   msgReceiveBus: Subject<MessageDto>;
+  toastBus: Subject<string>;
+
 
 constructor() {
-  this.msgSendedBus = new Subject<boolean>();
-  this.loginToastBus = new Subject<string>();
+  this.msgSendBus = new Subject<MessageDto>();
+
   this.msgReceiveBus = new Subject<MessageDto>();
+
+  this.toastBus = new Subject<string>();
  }
 
 }

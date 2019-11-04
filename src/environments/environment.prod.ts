@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  signalrUrl: 'https://giftxin.azurewebsites.net/api/v1/msgHub'
+  signalrUrl: 'https://giftxin.azurewebsites.net/api/msgHub',
+  chatApi: 'https://giftxin.azurewebsites.net/api/chat',
 };

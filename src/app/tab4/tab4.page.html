@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Chat Board</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item *ngFor="let user of users ">
+    <ion-avatar>user.name</ion-avatar>
+  </ion-item>
+  <ion-card  *ngFor="let msg of messages " >
+    <ion-avatar>
+          <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
+    </ion-avatar>
+    <ion-label>msg</ion-label>   
+    <ion-icon *ngIf="msg.exchanged" name="checkmark-circle-outline"></ion-icon>
+  </ion-card>
+
+  <ion-button (click)="getUsers()">Users</ion-button>
+
+
+  <ion-input #loginInput [value]="currentUser.guid"></ion-input>
+  <ion-button (click)="login()">login in</ion-button>
+  <ion-button (click)="loginOut()">login out</ion-button>
+
+
+  <ion-input #msgInput [value]="this.currentInput" ></ion-input>
+  <ion-button (click)="sendMsg(msgInput.value)">Send</ion-button>
+</ion-content>
