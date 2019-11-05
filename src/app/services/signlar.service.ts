@@ -8,25 +8,31 @@ import {
 import {
   BroadcastService
 } from './broadcast.service';
-import {
-  LoginInfoDto
-} from '../Model/loginInfoDto';
+
 import {
   MessageDto
 } from '../Model/messageDto';
+import { UserInfoDto, UserStatus } from '../Model/userInfoDto';
 @Injectable({
   providedIn: 'root'
 })
 export class SignlarService {
 
+  constructor(private _broadcastService: BroadcastService) {
+    this._signalrUrl = environment.signalrUrl;
+    this._timer = new Date();
+  }
+
   private _timer: Date;
   private _signalrUrl: string;
   private _signalrConnection: signalR.HubConnection;
   retryCount = 0;
-
-  constructor(private _broadcastService: BroadcastService) {
-    this._signalrUrl = environment.signalrUrl;
-    this._timer = new Date();
+  getUsers() {
+    this.initSignalr().then(() => {
+      this._signalrConnection.invoke('GetOnlineUsers', '');
+    }).catch((err) => {
+      console.log(err);
+    });
   }
 
   private initSignalr() {
@@ -34,8 +40,8 @@ export class SignlarService {
 
       this._signalrConnection = new signalR.HubConnectionBuilder()
         .withUrl(this._signalrUrl, {
-          // skipNegotiation: true,
-          // transport: signalR.HttpTransportType.WebSockets,
+          skipNegotiation: true,
+          transport: signalR.HttpTransportType.WebSockets,
         })
         .configureLogging(signalR.LogLevel.Information)
         .build();
@@ -49,25 +55,36 @@ export class SignlarService {
         }
       });
 
+
+      this._signalrConnection.on('MessageSendSuccess', (msg: MessageDto) => {
+       this._broadcastService.msgExchangedBus.next(msg);
+      });
       this._signalrConnection.on('MessageReceive', (msg: MessageDto) => {
-        this._broadcastService.msgReceiveBus.next(msg);
+        this._broadcastService.msgExchangedBus.next(msg);
         // this._signalrConnection.invoke('ReceivedMsg', this._timer.getMilliseconds) ;
       });
 
-      this._signalrConnection.on('LoginInSuccess', (time: number) => {
-        this._broadcastService.toastBus.next('login in success at ' + time);
+      this._signalrConnection.on('LoginInSuccess', (user: UserInfoDto) => {
+        this._broadcastService.toastBus.next('login in success at ' + user.loginInTime);
       });
 
-      this._signalrConnection.on('LoginOutSuccess', (time: number) => {
-        this._broadcastService.toastBus.next('login out success at ' + time);
+      this._signalrConnection.on('LoginOutSuccess', (user: UserInfoDto) => {
+        this._broadcastService.toastBus.next('login out success at ' + user.loginInTime);
       });
 
-      this._signalrConnection.on('LoginInFail', (time: number) => {
-        this._broadcastService.toastBus.next('login in failed at ' + time);
+      this._signalrConnection.on('LoginInFail', (user: UserInfoDto) => {
+        if (user.status === UserStatus.Online) {
+          this._broadcastService.toastBus.next('login in failed,user already existed');
+        }
+        this._broadcastService.toastBus.next('login in failed ');
       });
 
-      this._signalrConnection.on('LoginOutFail', (time: number) => {
-        this._broadcastService.toastBus.next('login out failed at ' + time);
+      this._signalrConnection.on('LoginOutFail', (user: UserInfoDto) => {
+        this._broadcastService.toastBus.next('login out failed' );
+      });
+
+      this._signalrConnection.on('OnlineUsers', (users: Array<UserInfoDto>) => {
+        this._broadcastService.userBus.next(users );
       });
 
 
@@ -78,7 +95,7 @@ export class SignlarService {
 
   }
 
-  public loginIn(dto: LoginInfoDto) {
+  public loginIn(dto: UserInfoDto) {
     this.initSignalr().then(() => {
       this._signalrConnection.invoke('loginIn', dto)
       .catch(error => {
@@ -88,7 +105,7 @@ export class SignlarService {
 
   }
 
-  public loginOut(dto: LoginInfoDto) {
+  public loginOut(dto: UserInfoDto) {
     this.initSignalr().then(() => {
         this._signalrConnection.invoke('loginOut', dto)
         .catch(error => {

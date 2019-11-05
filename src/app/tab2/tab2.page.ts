@@ -30,7 +30,6 @@ export class Tab2Page implements OnInit {
       return photo;
     });
     this.photoService.photos = photos;
-    console.log(this.photoService.photos.length);
 
 
 

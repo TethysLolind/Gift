@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  signalrUrl: 'http://localhost:5000/api/msgHub',
-  chatApi: 'http://localhost:5000/api/chat',
+  signalrUrl: 'http://localhost:23229/api/v1/msgHub',
+  chatApi: 'http://localhost:23229/api/v1/chat',
 };
 
 /*

@@ -34,7 +34,7 @@ export class TabsPage implements OnInit, OnDestroy {
 
   }
   monitorChatStatus() {
-   this.broadcaster.msgReceiveBus.subscribe((msg) => {
+   this.broadcaster.msgExchangedBus.subscribe((msg) => {
      const toastOpt: ToastOptions = {
       // header?: string;
       message: 'a new message from ' + msg.fromGuid,
@@ -55,6 +55,28 @@ export class TabsPage implements OnInit, OnDestroy {
      };
     this.toastControl.create(toastOpt);
    });
+
+   this.broadcaster.toastBus.subscribe((msg) => {
+    const toastOpt: ToastOptions = {
+     // header?: string;
+     message: msg,
+     // cssClass?: string | string[];
+     duration: 2000,
+     // buttons?: (ToastButton | string)[];
+     // showCloseButton?: boolean;
+     // closeButtonText?: string;
+     position: 'bottom' ,
+     // translucent?: boolean;
+     animated: true,
+     // color?: Color;
+     // mode?: Mode;
+     // keyboardClose?: boolean;
+     // id?: string;
+     // enterAnimation?: AnimationBuilder;
+     // leaveAnimation?: AnimationBuilder;
+    };
+   this.toastControl.create(toastOpt);
+  });
   }
 
   async monitorNetwork() {

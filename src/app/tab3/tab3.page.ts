@@ -30,6 +30,17 @@ import { setInterval } from 'timers';
 })
 export class Tab3Page implements OnInit {
   public opts: MapOptions;
+  samoleOpts = {
+    enableAutoResize: true,
+    enableMapClick: true,
+    // disableDragging?: boolean;
+    enableScrollWheelZoom: true,
+    centerAndZoom: {
+      lng: 128.0000,
+      lat: 30.0000,
+      zoom: 15
+    }
+  };
   public markers = [
     {
       options: {
@@ -74,22 +85,21 @@ export class Tab3Page implements OnInit {
 
 
   constructor() {
+    this.opts = this.samoleOpts;
+  }
+  async getLocation() {
+    const loc = await Plugins.Geolocation.getCurrentPosition();
     this.opts = {
       enableAutoResize: true,
       enableMapClick: true,
       // disableDragging?: boolean;
       enableScrollWheelZoom: true,
       centerAndZoom: {
-        lng: 128.0000,
-        lat: 30.0000,
+        lng: loc.coords.longitude,
+        lat: loc.coords.latitude,
         zoom: 15
       }
     };
-  }
-  async getLocation() {
-    const loc = await Plugins.Geolocation.getCurrentPosition();
-    this.opts .centerAndZoom.lng = loc.coords.longitude;
-    this.opts .centerAndZoom.lng = loc.coords.latitude;
 
   }
 
