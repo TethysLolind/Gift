@@ -21,6 +21,7 @@ import {
   Plugins
 } from '@capacitor/core';
 import { setInterval } from 'timers';
+import { SignlarService } from '../services/signlar.service';
 
 
 @Component({
@@ -84,31 +85,56 @@ export class Tab3Page implements OnInit {
   // Geolocation 和Panorama 没有属性
 
 
-  constructor() {
+  constructor(private _signlarService: SignlarService) {
     this.opts = this.samoleOpts;
   }
-  async getLocation() {
-    const loc = await Plugins.Geolocation.getCurrentPosition();
-    this.opts = {
-      enableAutoResize: true,
-      enableMapClick: true,
-      // disableDragging?: boolean;
-      enableScrollWheelZoom: true,
-      centerAndZoom: {
-        lng: loc.coords.longitude,
-        lat: loc.coords.latitude,
-        zoom: 15
+  getLocation() {
+    Plugins.Geolocation.getCurrentPosition().then(
+      loc => {
+        this.opts = {
+          enableAutoResize: true,
+          enableMapClick: true,
+          // disableDragging?: boolean;
+          enableScrollWheelZoom: true,
+          centerAndZoom: {
+            lng: loc.coords.longitude,
+            lat: loc.coords.latitude,
+            zoom: 15
+          }
+        };
       }
-    };
+    );
+
 
   }
 
-  async resetSelfLocation() {
-    const loc = await Plugins.Geolocation.getCurrentPosition();
-    this.markers[0].point = {
-      lng: loc.coords.longitude,
-      lat: loc.coords.latitude,
-    };
+  resetSelfLocation() {
+    Plugins.Geolocation.getCurrentPosition().then(
+      loc => {
+
+        this.markers = [
+          {
+            options: {
+              icon: {
+                imageUrl: '/assets/icon/location.png',
+                size: {
+                  height: 15,
+                  width: 15
+                }
+              },
+              title: 'SelfPoint'
+            },
+            point: {
+              lng: loc.coords.longitude, // 经度
+              lat: loc.coords.latitude, // 纬度
+            }
+          },
+
+        ];
+
+      }
+    );
+
 
     console.log(this.markers[0]);
   }
@@ -117,6 +143,7 @@ export class Tab3Page implements OnInit {
     setInterval(() => {
       this.resetSelfLocation();
     }, 5000);
+
 
   }
 }

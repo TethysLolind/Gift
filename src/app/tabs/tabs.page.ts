@@ -6,6 +6,8 @@ import {first} from 'rxjs/operators';
 import { AlertOptions, ToastOptions } from '@ionic/core';
 import { Plugins } from '@capacitor/core';
 import { BroadcastService } from '../services/broadcast.service';
+import { SignlarService } from '../services/signlar.service';
+import { UserInfoDto, UserStatus } from '../Model/userInfoDto';
 
 const { Network } = Plugins;
 @Component({
@@ -15,8 +17,10 @@ const { Network } = Plugins;
 })
 export class TabsPage implements OnInit, OnDestroy {
   status: any;
+  currentUser: UserInfoDto;
   constructor(private updateService: SwUpdate,
-    private broadcaster: BroadcastService,
+
+    private signalrService: SignlarService,
     private alertControl: AlertController,
     private toastControl: ToastController,
     private appRef: ApplicationRef,
@@ -27,57 +31,12 @@ export class TabsPage implements OnInit, OnDestroy {
   doNothing;
   ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
+    this.signalrService.loginOut(this.currentUser);
   }
-  ngOnInit(): void {
+  ngOnInit() {
     this.monitorNetwork();
-    this.monitorChatStatus();
-
   }
-  monitorChatStatus() {
-   this.broadcaster.msgExchangedBus.subscribe((msg) => {
-     const toastOpt: ToastOptions = {
-      // header?: string;
-      message: 'a new message from ' + msg.fromGuid,
-      // cssClass?: string | string[];
-      duration: 2000,
-      // buttons?: (ToastButton | string)[];
-      // showCloseButton?: boolean;
-      // closeButtonText?: string;
-      position: 'bottom' ,
-      // translucent?: boolean;
-      animated: true,
-      // color?: Color;
-      // mode?: Mode;
-      // keyboardClose?: boolean;
-      // id?: string;
-      // enterAnimation?: AnimationBuilder;
-      // leaveAnimation?: AnimationBuilder;
-     };
-    this.toastControl.create(toastOpt);
-   });
 
-   this.broadcaster.toastBus.subscribe((msg) => {
-    const toastOpt: ToastOptions = {
-     // header?: string;
-     message: msg,
-     // cssClass?: string | string[];
-     duration: 2000,
-     // buttons?: (ToastButton | string)[];
-     // showCloseButton?: boolean;
-     // closeButtonText?: string;
-     position: 'bottom' ,
-     // translucent?: boolean;
-     animated: true,
-     // color?: Color;
-     // mode?: Mode;
-     // keyboardClose?: boolean;
-     // id?: string;
-     // enterAnimation?: AnimationBuilder;
-     // leaveAnimation?: AnimationBuilder;
-    };
-   this.toastControl.create(toastOpt);
-  });
-  }
 
   async monitorNetwork() {
 

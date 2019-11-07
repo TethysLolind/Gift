@@ -13,27 +13,22 @@ import {
   MessageDto
 } from '../Model/messageDto';
 import { UserInfoDto, UserStatus } from '../Model/userInfoDto';
+import { UserManageService } from './user-manage.service';
+import { interval, Subscription } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
 export class SignlarService {
 
-  constructor(private _broadcastService: BroadcastService) {
+  constructor(private _broadcastService: BroadcastService, private _user: UserManageService) {
     this._signalrUrl = environment.signalrUrl;
-    this._timer = new Date();
   }
 
-  private _timer: Date;
+  private _aliveLoop: Subscription;
   private _signalrUrl: string;
   private _signalrConnection: signalR.HubConnection;
   retryCount = 0;
-  getUsers() {
-    this.initSignalr().then(() => {
-      this._signalrConnection.invoke('GetOnlineUsers', '');
-    }).catch((err) => {
-      console.log(err);
-    });
-  }
+
 
   private initSignalr() {
     if (this._signalrConnection === undefined || this._signalrConnection.state !== signalR.HubConnectionState.Connected) {
@@ -69,6 +64,7 @@ export class SignlarService {
       });
 
       this._signalrConnection.on('LoginOutSuccess', (user: UserInfoDto) => {
+        this._broadcastService.userBus.next(new Array<UserInfoDto>());
         this._broadcastService.toastBus.next('login out success at ' + user.loginInTime);
       });
 
@@ -87,6 +83,14 @@ export class SignlarService {
         this._broadcastService.userBus.next(users );
       });
 
+      this._signalrConnection.on('AliveUpdateFail', (time) => {
+        this._broadcastService.toastBus.next('alive user failed' );
+      });
+
+      this._signalrConnection.on('AliveUpdateSuccess', (time) => {
+        this._broadcastService.toastBus.next('alive user' );
+      });
+
 
       return this._signalrConnection.start();
     } else {
@@ -97,22 +101,48 @@ export class SignlarService {
 
   public loginIn(dto: UserInfoDto) {
     this.initSignalr().then(() => {
-      this._signalrConnection.invoke('loginIn', dto)
+      this._signalrConnection.invoke('loginIn', dto).then(() => {
+        this.aliveLoop();
+      })
       .catch(error => {
         console.error(error.toString());
       });
+    });
+
+
+
+  }
+
+  public aliveLoop() {
+    if ( this._aliveLoop !== undefined) {
+      this._aliveLoop.unsubscribe();
+    }
+    this._aliveLoop = interval(5000).subscribe(() => {
+      this.aliveUser(this._user.currentUser);
     });
 
   }
 
   public loginOut(dto: UserInfoDto) {
     this.initSignalr().then(() => {
-        this._signalrConnection.invoke('loginOut', dto)
+        this._signalrConnection.invoke('loginOut', dto).then(() => {
+          this._aliveLoop.unsubscribe();
+        })
         .catch(error => {
           console.error(error.toString());
         });
       });
     }
+
+  public aliveUser(dto: UserInfoDto) {
+    this.initSignalr().then(() => {
+      this._signalrConnection.invoke('alive', dto )
+      .catch(error => {
+        console.error(error.toString());
+      });
+    });
+  }
+
 
 
 

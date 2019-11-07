@@ -5,28 +5,45 @@
 </ion-header>
 
 <ion-content>
-  <ion-item *ngFor="let user of userEvent|async ">
-    <ion-avatar>
-      <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
-    </ion-avatar>
-    <ion-label >{{user.name}}</ion-label>
-    <ion-label >{{user.guid}}</ion-label>
+
+  <ion-item *ngFor="let user of userEvent|async " (click)="userService.setTargetUser(user)">
+   
+      <ion-avatar *ngIf="user.guid!=currentUser.guid">
+        <img src="/assets/icon/favicon.png">
+      </ion-avatar>
+      <ion-avatar *ngIf="user.guid==currentUser.guid">
+          <img src="/assets/icon/location.png">
+        </ion-avatar>
+      <ion-label>{{user.name}}</ion-label>
+      <ion-label>{{user.guid}}</ion-label>
+
+
   </ion-item>
+
+  <ion-item>
+    <ion-label>Login Name</ion-label>
+    <ion-input [(ngModel)]="currentUser.name"></ion-input>
+    <ion-button (click)="signalrService. loginIn(currentUser)">login in</ion-button>
+    <ion-button (click)="signalrService. loginOut(currentUser)">login out</ion-button>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Target User</ion-label>
+    <ion-label *ngIf="userService.targetUser">{{userService.targetUser.name}}</ion-label>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Mesasge</ion-label>
+    <ion-input [(ngModel)]="this.currentInput"></ion-input>
+    <ion-button (click)="sendMsg()">Send</ion-button>
+    <ion-button (click)="clearMsg()">Clear</ion-button>
+  </ion-item>
+
   <ion-card *ngFor="let msg of messageEvent|async ">
-    <ion-label>{{msg.context}}</ion-label>
+    <ion-label class="fromUser" *ngIf="msg.fromGuid==currentUser.guid">{{msg.context}}</ion-label>
+    <ion-label class="toUser" *ngIf="msg.toGuid==currentUser.guid">From:{{msg.fromGuid}}->{{msg.context}}</ion-label>
     <ion-icon *ngIf="msg.exchanged" name="checkmark-circle-outline"></ion-icon>
   </ion-card>
 
-  <ion-button (click)="getUsers()">Users</ion-button>
 
-  <ion-label >Login Name</ion-label>
-  <ion-input #loginInput  [(ngModel)]="currentUser.name"></ion-input>
-  <ion-button (click)="login()">login in</ion-button>
-  <ion-button (click)="loginOut()">login out</ion-button>
-
-  <ion-label >Target User</ion-label>
-  <ion-input [(ngModel)]="this.targetUserGuid"></ion-input>
-  <ion-label >Mesasge</ion-label>
-  <ion-input [(ngModel)]="this.currentInput"></ion-input>
-  <ion-button (click)="sendMsg()">Send</ion-button>
 </ion-content>

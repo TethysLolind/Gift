@@ -6,6 +6,7 @@ export const environment = {
   production: false,
   signalrUrl: 'http://localhost:23229/api/v1/msgHub',
   chatApi: 'http://localhost:23229/api/v1/chat',
+  clearMsg: 'clearMsg'
 };
 
 /*

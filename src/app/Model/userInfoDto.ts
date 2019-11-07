@@ -4,7 +4,8 @@ export interface UserInfoDto {
     name: string;
     connectionId: string;
     loginInTime: number;
-    loginOutTIme: number;
+    loginOutTime: number;
+    latestTimestamp: number;
 
 }
 

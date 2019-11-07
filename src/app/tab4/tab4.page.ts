@@ -27,66 +27,60 @@ import {
   catchError,
   mergeMap,
   switchMap,
-  withLatestFrom
+  withLatestFrom,
+  filter
 } from 'rxjs/operators';
 import {
   Observable,
   of ,
 } from 'rxjs';
-import {
-  Storage
-} from '@ionic/storage';
+
 import {
   BroadcastService
 } from '../services/broadcast.service';
+import {
+  UserManageService
+} from '../services/user-manage.service';
 @Component({
   selector: 'app-tab4',
   templateUrl: './tab4.page.html',
   styleUrls: ['./tab4.page.scss'],
 })
-export class Tab4Page implements OnInit, OnDestroy {
-  constructor(private _storage: Storage,
-    private _signalrChanel: SignlarService,
+export class Tab4Page implements OnInit {
+  constructor(
+    public signalrService: SignlarService,
     private _broadcaster: BroadcastService,
     private _http: HttpClient,
+    public userService: UserManageService
   ) {
 
   }
   messageEvent: Observable < Array < MessageDto > > ;
   messages: Array < MessageDto > ;
   userEvent: Observable < Array < UserInfoDto >> ;
-  users: Array < UserInfoDto > ;
 
-  currentUser: UserInfoDto;
-  targetUserGuid: string;
+  targetUser: UserInfoDto;
   currentInput: string;
+  currentUser: UserInfoDto;
 
-  ngOnDestroy(): void {
-    this.loginOut();
-  }
+  previousUsers: Array < UserInfoDto > ;
 
 
-  async ngOnInit() {
-    this.messages = new Array < MessageDto > ();
+
+  ngOnInit() {
+
+    this.previousUsers = new Array < UserInfoDto > ();
     this.currentInput = '';
-    this.currentUser = {
-      name: 'Bo',
-      guid: undefined,
-      status: UserStatus.Offline,
-      connectionId: undefined,
-      loginInTime: 0,
-      loginOutTIme: 0
-    };
+    this.currentUser = this.userService.currentUser;
+    this.targetUser = this.userService.targetUser;
 
-    this.currentUser.guid = await this._storage.get('userGuid');
-    if (this.currentUser.guid !== null || this.currentUser.guid !== undefined) {
-      this.currentUser.guid = shortid.generate();
-      this._storage.set('userGuid', this.currentUser.guid);
-    }
-
-
+    this.messages = new Array < MessageDto > ();
     this.messageEvent = this._broadcaster.msgExchangedBus.pipe(
       mergeMap(msg => {
+        if (msg.context === environment.clearMsg) {
+          this.messages = new Array<MessageDto>();
+          return of(new Array<MessageDto>());
+        }
         this.messages.push(msg);
         this.messages.sort((a, b) => {
           return a.timestamp - b.timestamp;
@@ -96,12 +90,17 @@ export class Tab4Page implements OnInit, OnDestroy {
       })
 
     );
-
-
     this.userEvent = this._broadcaster.userBus.pipe(
-      map(users => users)
-    );
+      filter(users => {
+        const previousNameSet = this.previousUsers.map(user => user.name);
+        const hasNameDiffer =  users.some(user => !previousNameSet.includes(user.name) );
+        return (users.length !== this.previousUsers.length) || hasNameDiffer;
+      }),
+      tap(users => {
+        this.previousUsers = users;
+      })
 
+    );
 
     // this.login();
 
@@ -111,44 +110,33 @@ export class Tab4Page implements OnInit, OnDestroy {
 
   }
 
-  // saveMsg(msg: MessageDto) {
-  //   const strMsg = JSON.stringify(msg);
-  //   this._storage.set(this.currentUser.userGuid, strMsg);
-
-  // }
-
-  // loadMsg(userGuid: string) {
-  //   const strMsgArray = this._storage.get(this.currentUser.userGuid, );
-  // }
-
+  clearMsg() {
+    const clearMsg: MessageDto = {
+      fromGuid: undefined,
+    toGuid: undefined,
+    timestamp: undefined,
+    exchanged: undefined,
+    msgId: undefined,
+    context: environment.clearMsg
+    };
+    this._broadcaster.msgExchangedBus.next(clearMsg);
+  }
 
   sendMsg() {
     const msg: MessageDto = {
-      fromGuid: this.currentUser.guid,
-      toGuid: this.targetUserGuid,
-      timestamp: Date.now(),
+      fromGuid: this.userService.currentUser.guid,
+      toGuid: this.userService.targetUser.guid,
+      timestamp: undefined,
       exchanged: false,
       msgId: shortid.generate(),
       context: this.currentInput
     };
-    this._signalrChanel.sendMsg(msg);
-  }
-
-  login() {
-    if (this.currentUser.guid !== undefined) {
-      this._signalrChanel.loginIn(this.currentUser);
-    }
+    this.signalrService.sendMsg(msg);
 
   }
 
-  loginOut() {
-    if (this.currentUser.guid !== undefined) {
-      this._signalrChanel.loginOut(this.currentUser);
-    }
-  }
 
-  getUsers() {
-    this._signalrChanel.getUsers();
-  }
+
+
 
 }
