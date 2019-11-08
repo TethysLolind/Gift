@@ -4,6 +4,6 @@ export interface GeoLocationDto {
 
     lat: number;
     lon: number;
-
+    height: number;
     timestamp: number;
 }

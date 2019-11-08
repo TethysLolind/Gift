@@ -11,8 +11,13 @@ import {
 } from 'angular2-baidu-map';
 
 import {
-  BMapInstance,  Point, MarkerOptions, NavigationControlOptions,
-   OverviewMapControlOptions, ScaleControlOptions, MapTypeControlOptions
+  BMapInstance,
+  Point,
+  MarkerOptions,
+  NavigationControlOptions,
+  OverviewMapControlOptions,
+  ScaleControlOptions,
+  MapTypeControlOptions
 } from 'angular2-baidu-map';
 // import {
 //   Geolocation
@@ -20,8 +25,19 @@ import {
 import {
   Plugins
 } from '@capacitor/core';
-import { setInterval } from 'timers';
-import { SignlarService } from '../services/signlar.service';
+import {
+  setInterval
+} from 'timers';
+import {
+  SignlarService
+} from '../services/signlar.service';
+import {
+  BroadcastService
+} from '../services/broadcast.service';
+import { from, Observable, interval } from 'rxjs';
+import { GeoLocationDto } from '../Model/geoLocationDto';
+import { map, mergeMap, combineLatest, filter } from 'rxjs/operators';
+import { UserManageService } from '../services/user-manage.service';
 
 
 @Component({
@@ -31,19 +47,19 @@ import { SignlarService } from '../services/signlar.service';
 })
 export class Tab3Page implements OnInit {
   public opts: MapOptions;
+  private selfLocationUpdateSignalr: Observable<GeoLocationDto>;
   samoleOpts = {
     enableAutoResize: true,
     enableMapClick: true,
     // disableDragging?: boolean;
     enableScrollWheelZoom: true,
     centerAndZoom: {
-      lng: 128.0000,
+      lng: 90.0000,
       lat: 30.0000,
-      zoom: 15
+      zoom: 3
     }
   };
-  public markers = [
-    {
+  public markers = [{
       options: {
         icon: {
           imageUrl: '/assets/icon/location.png',
@@ -82,12 +98,77 @@ export class Tab3Page implements OnInit {
   public mapTypeOpts: MapTypeControlOptions = { // 地图类型
     type: MapTypeControlType.BMAP_MAPTYPE_CONTROL_HORIZONTAL
   };
+
   // Geolocation 和Panorama 没有属性
 
 
-  constructor(private _signlarService: SignlarService) {
-    this.opts = this.samoleOpts;
+  constructor(private _signlarService: SignlarService, private _broadcast: BroadcastService, private _user: UserManageService) {
+
   }
+
+
+  ngOnInit() {
+    this.opts = this.samoleOpts;
+    this.getLocation();
+
+
+    this.selfLocationUpdateSignalr =  interval(4000).pipe(
+      mergeMap(e => {
+        return from(Plugins.Geolocation.getCurrentPosition()).pipe(
+          map(locOpts => {
+            const selfLocation: GeoLocationDto = {
+              guid:  this._user.currentUser.guid ,
+              name:   this._user.currentUser.name,
+              lat: locOpts.coords.latitude ,
+              lon:  locOpts.coords.longitude ,
+              height: 10,
+              timestamp: locOpts.timestamp
+            };
+            return selfLocation;
+          })
+        );
+      })
+    );
+
+    this.selfLocationUpdateSignalr.subscribe(loc => {
+      this._signlarService.updateLocation(loc);
+    });
+
+    this._broadcast.locationBus.
+    pipe(
+      filter(locs => locs !== undefined)
+    //   combineLatest(this.selfLocationUpdateSignalr),
+    //   map(([locs, selfloc]) => {
+    //     return [...locs, selfloc];
+    //   })
+    ).
+    subscribe(locs => {
+      const receiveMarkers = [];
+      locs.forEach(loc => {
+          const marker = {
+            options: {
+              icon: {
+                imageUrl: '/assets/icon/location.png',
+                size: {
+                  height: 15,
+                  width: 15
+                }
+              },
+              title: 'SelfPoint'
+            },
+            point: {
+              lng: loc.lon, // 经度
+              lat: loc.lat // 纬度
+            }
+          };
+          receiveMarkers.push(marker);
+        }
+      );
+        this.markers = receiveMarkers;
+    });
+
+  }
+
   getLocation() {
     Plugins.Geolocation.getCurrentPosition().then(
       loc => {
@@ -108,42 +189,9 @@ export class Tab3Page implements OnInit {
 
   }
 
-  resetSelfLocation() {
-    Plugins.Geolocation.getCurrentPosition().then(
-      loc => {
-
-        this.markers = [
-          {
-            options: {
-              icon: {
-                imageUrl: '/assets/icon/location.png',
-                size: {
-                  height: 15,
-                  width: 15
-                }
-              },
-              title: 'SelfPoint'
-            },
-            point: {
-              lng: loc.coords.longitude, // 经度
-              lat: loc.coords.latitude, // 纬度
-            }
-          },
-
-        ];
-
-      }
-    );
-
-
-    console.log(this.markers[0]);
-  }
-  ngOnInit() {
-    this.getLocation();
-    setInterval(() => {
-      this.resetSelfLocation();
-    }, 5000);
+  updateSelfLocation() {
 
 
   }
+
 }

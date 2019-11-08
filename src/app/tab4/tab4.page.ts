@@ -32,7 +32,9 @@ import {
 } from 'rxjs/operators';
 import {
   Observable,
-  of ,
+  of,
+  Subscription,
+  interval,
 } from 'rxjs';
 
 import {
@@ -46,7 +48,7 @@ import {
   templateUrl: './tab4.page.html',
   styleUrls: ['./tab4.page.scss'],
 })
-export class Tab4Page implements OnInit {
+export class Tab4Page implements OnInit, OnDestroy {
   constructor(
     public signalrService: SignlarService,
     private _broadcaster: BroadcastService,
@@ -64,6 +66,8 @@ export class Tab4Page implements OnInit {
   currentUser: UserInfoDto;
 
   previousUsers: Array < UserInfoDto > ;
+
+
 
 
 
@@ -101,6 +105,8 @@ export class Tab4Page implements OnInit {
       })
 
     );
+
+
 
     // this.login();
 

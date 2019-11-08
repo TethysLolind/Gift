@@ -9,6 +9,7 @@ import {
   BroadcastService
 } from './broadcast.service';
 import * as shortid from 'shortid';
+import { GeoLocationDto } from '../Model/geoLocationDto';
 @Injectable({
   providedIn: 'root'
 })
@@ -19,8 +20,9 @@ export class UserManageService implements OnInit {
  ) {
   this.initCurrentUser();
  }
-  public currentUser: UserInfoDto;
+  public currentUser:  UserInfoDto;
   public targetUser: UserInfoDto;
+
   ngOnInit(): void {
     this.initCurrentUser();
   }
@@ -39,6 +41,7 @@ export class UserManageService implements OnInit {
 
 
   }
+
 
   public setCurrentUserName(name: string) {
     this.currentUser.name = name;

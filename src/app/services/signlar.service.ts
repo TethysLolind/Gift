@@ -15,6 +15,7 @@ import {
 import { UserInfoDto, UserStatus } from '../Model/userInfoDto';
 import { UserManageService } from './user-manage.service';
 import { interval, Subscription } from 'rxjs';
+import { GeoLocationDto } from '../Model/geoLocationDto';
 @Injectable({
   providedIn: 'root'
 })
@@ -27,7 +28,19 @@ export class SignlarService {
   private _aliveLoop: Subscription;
   private _signalrUrl: string;
   private _signalrConnection: signalR.HubConnection;
+  private _updateUserSubscription: Subscription;
   retryCount = 0;
+
+
+
+  public updateLocation(loc: GeoLocationDto) {
+    this.initSignalr().then(() => {
+      this._signalrConnection.invoke('UpdateLocation', loc)
+      .catch(error => {
+        console.error(error.toString());
+      });
+    });
+  }
 
 
   private initSignalr() {
@@ -60,6 +73,8 @@ export class SignlarService {
       });
 
       this._signalrConnection.on('LoginInSuccess', (user: UserInfoDto) => {
+        this.aliveLoop();
+        this.updateUserLoop();
         this._broadcastService.toastBus.next('login in success at ' + user.loginInTime);
       });
 
@@ -91,6 +106,9 @@ export class SignlarService {
         this._broadcastService.toastBus.next('alive user' );
       });
 
+      this._signalrConnection.on('ReceiveLocations', (locs) => {
+        this._broadcastService.locationBus.next(locs);
+      });
 
       return this._signalrConnection.start();
     } else {
@@ -99,10 +117,10 @@ export class SignlarService {
 
   }
 
-  public loginIn(dto: UserInfoDto) {
+  public loginIn(dto= this._user.currentUser) {
     this.initSignalr().then(() => {
       this._signalrConnection.invoke('loginIn', dto).then(() => {
-        this.aliveLoop();
+
       })
       .catch(error => {
         console.error(error.toString());
@@ -110,6 +128,16 @@ export class SignlarService {
     });
 
 
+
+  }
+
+  public updateUserLoop() {
+    if ( this._updateUserSubscription !== undefined) {
+      this._updateUserSubscription.unsubscribe();
+    }
+    this._updateUserSubscription = interval(1000).subscribe(i => {
+      this.updateOnlineUsers();
+      });
 
   }
 
@@ -123,10 +151,11 @@ export class SignlarService {
 
   }
 
-  public loginOut(dto: UserInfoDto) {
+  public loginOut(dto= this._user.currentUser) {
     this.initSignalr().then(() => {
         this._signalrConnection.invoke('loginOut', dto).then(() => {
           this._aliveLoop.unsubscribe();
+          this._updateUserSubscription.unsubscribe();
         })
         .catch(error => {
           console.error(error.toString());
@@ -134,7 +163,7 @@ export class SignlarService {
       });
     }
 
-  public aliveUser(dto: UserInfoDto) {
+  public aliveUser(dto= this._user.currentUser) {
     this.initSignalr().then(() => {
       this._signalrConnection.invoke('alive', dto )
       .catch(error => {
@@ -153,6 +182,18 @@ export class SignlarService {
         console.error(error.toString());
       });
     });
+  }
+
+  public updateOnlineUsers() {
+    this.initSignalr().then(() => {
+      this._signalrConnection.invoke('GetOnlineUsers', this._user.currentUser.guid)
+      .catch(error => {
+        console.error(error.toString());
+      });
+    });
+
+
+
   }
 
 

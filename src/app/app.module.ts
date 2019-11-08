@@ -12,7 +12,6 @@ import { Camera } from '@ionic-native/camera/ngx';
 import { IonicStorageModule } from '@ionic/storage';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { BaiduMapModule } from 'angular2-baidu-map';
 import { HttpClientModule } from '@angular/common/http';
 // ss
 @NgModule({
