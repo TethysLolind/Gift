@@ -28,8 +28,7 @@ export class TabsPage implements OnInit, OnDestroy {
   }
   subscriptions: Subscription[] = [];
 
-  doNothing;
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe());
     this.signalrService.loginOut(this.currentUser);
   }
