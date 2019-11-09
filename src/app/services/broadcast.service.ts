@@ -2,8 +2,6 @@ import { Injectable, OnInit } from '@angular/core';
 import { MessageDto } from '../Model/messageDto';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { UserInfoDto } from '../Model/userInfoDto';
-import { ToastOptions } from '@ionic/core';
-import { ToastController } from '@ionic/angular';
 import { GeoLocationDto } from '../Model/geoLocationDto';
 
 @Injectable({

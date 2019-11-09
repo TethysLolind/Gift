@@ -23,6 +23,7 @@ export class TabsPage implements OnInit, OnDestroy {
     private signalrService: SignlarService,
     private alertControl: AlertController,
     private toastControl: ToastController,
+    private broadcast: BroadcastService,
     private appRef: ApplicationRef,
     ) {
   }
@@ -111,5 +112,52 @@ export class TabsPage implements OnInit, OnDestroy {
     };
     this.alertControl.create(opts).then(e => e.present());
   }
+
+
+  monitorChatStatus() {
+    this.broadcast.msgExchangedBus.subscribe((msg) => {
+      const toastOpt: ToastOptions = {
+       // header?: string;
+       message: 'a new message from ' + msg.fromGuid,
+       // cssClass?: string | string[];
+       duration: 2000,
+       // buttons?: (ToastButton | string)[];
+       // showCloseButton?: boolean;
+       // closeButtonText?: string;
+       position: 'bottom' ,
+       // translucent?: boolean;
+       animated: true,
+       // color?: Color;
+       // mode?: Mode;
+       // keyboardClose?: boolean;
+       // id?: string;
+       // enterAnimation?: AnimationBuilder;
+       // leaveAnimation?: AnimationBuilder;
+      };
+     this.toastControl.create(toastOpt);
+    });
+
+    this.broadcast.toastBus.subscribe((msg) => {
+     const toastOpt: ToastOptions = {
+      // header?: string;
+      message: msg,
+      // cssClass?: string | string[];
+      duration: 2000,
+      // buttons?: (ToastButton | string)[];
+      // showCloseButton?: boolean;
+      // closeButtonText?: string;
+      position: 'bottom' ,
+      // translucent?: boolean;
+      animated: true,
+      // color?: Color;
+      // mode?: Mode;
+      // keyboardClose?: boolean;
+      // id?: string;
+      // enterAnimation?: AnimationBuilder;
+      // leaveAnimation?: AnimationBuilder;
+     };
+    this.toastControl.create(toastOpt);
+   });
+   }
 
 }

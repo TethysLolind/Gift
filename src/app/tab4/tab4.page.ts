@@ -52,7 +52,6 @@ export class Tab4Page implements OnInit {
   constructor(
     public signalrService: SignlarService,
     private _broadcaster: BroadcastService,
-    private _http: HttpClient,
     public userService: UserManageService
   ) {
 
