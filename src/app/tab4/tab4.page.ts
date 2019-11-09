@@ -48,7 +48,7 @@ import {
   templateUrl: './tab4.page.html',
   styleUrls: ['./tab4.page.scss'],
 })
-export class Tab4Page implements OnInit, OnDestroy {
+export class Tab4Page implements OnInit {
   constructor(
     public signalrService: SignlarService,
     private _broadcaster: BroadcastService,
