@@ -98,11 +98,12 @@ export class SignlarService {
       });
 
       this._signalrConnection.on('AliveUpdateFail', (time) => {
+        console.log(time);
         this._broadcastService.toastBus.next('alive user failed' );
       });
 
       this._signalrConnection.on('AliveUpdateSuccess', (time) => {
-        this._broadcastService.toastBus.next('alive user' );
+        // this._broadcastService.toastBus.next('alive user' );
       });
 
       this._signalrConnection.on('ReceiveLocations', (locs) => {

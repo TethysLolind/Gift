@@ -35,10 +35,11 @@ export class TabsPage implements OnInit, OnDestroy {
   }
   ngOnInit() {
     this.monitorNetwork();
+    this.monitorChatStatus();
   }
 
 
-  async monitorNetwork() {
+   async monitorNetwork() {
 
      Network.addListener('networkStatusChange', (nwStatus) => {
       const toastOpt: ToastOptions = {
@@ -47,7 +48,9 @@ export class TabsPage implements OnInit, OnDestroy {
         position: 'bottom' ,
         animated: true,
        };
-      this.toastControl.create(toastOpt);
+      this.toastControl.create(toastOpt).then(obj => {
+        obj.present();
+      });
       if (!nwStatus.connected) {
         this.initUpdater();
       }
@@ -134,7 +137,9 @@ export class TabsPage implements OnInit, OnDestroy {
        // enterAnimation?: AnimationBuilder;
        // leaveAnimation?: AnimationBuilder;
       };
-     this.toastControl.create(toastOpt);
+     this.toastControl.create(toastOpt).then(obj => {
+       obj.present();
+     });
     });
 
     this.broadcast.toastBus.subscribe((msg) => {
@@ -156,7 +161,9 @@ export class TabsPage implements OnInit, OnDestroy {
       // enterAnimation?: AnimationBuilder;
       // leaveAnimation?: AnimationBuilder;
      };
-    this.toastControl.create(toastOpt);
+    this.toastControl.create(toastOpt).then(obj => {
+      obj.present();
+    });
    });
    }
 
