@@ -34,7 +34,6 @@ export class UserManageService implements OnInit {
       status: UserStatus.Offline,
       connectionId: undefined,
       loginInTime: 0,
-      loginOutTime: 0,
       latestTimestamp: undefined
     };
 

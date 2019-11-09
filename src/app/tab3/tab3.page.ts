@@ -19,24 +19,19 @@ import {
   ScaleControlOptions,
   MapTypeControlOptions
 } from 'angular2-baidu-map';
-// import {
-//   Geolocation
-// } from '@ionic-native/geolocation/ngx';
+
 import {
   Plugins
 } from '@capacitor/core';
-import {
-  setInterval
-} from 'timers';
 import {
   SignlarService
 } from '../services/signlar.service';
 import {
   BroadcastService
 } from '../services/broadcast.service';
-import { from, Observable, interval } from 'rxjs';
+import { from, Observable, interval, of } from 'rxjs';
 import { GeoLocationDto } from '../Model/geoLocationDto';
-import { map, mergeMap, combineLatest, filter } from 'rxjs/operators';
+import { map, mergeMap, combineLatest, filter, catchError } from 'rxjs/operators';
 import { UserManageService } from '../services/user-manage.service';
 
 
@@ -101,8 +96,9 @@ export class Tab3Page implements OnInit {
 
   // Geolocation 和Panorama 没有属性
 
-
-  constructor(private _signlarService: SignlarService, private _broadcast: BroadcastService, private _user: UserManageService) {
+  constructor(private _signlarService: SignlarService,
+    private _broadcast: BroadcastService,
+     private _user: UserManageService) {
 
   }
 
@@ -125,7 +121,21 @@ export class Tab3Page implements OnInit {
               timestamp: locOpts.timestamp
             };
             return selfLocation;
+          }),
+
+          catchError(err => {
+            console.log('give default locartion due to:' + err);
+            const selfLocation: GeoLocationDto = {
+              guid:  this._user.currentUser.guid ,
+              name:   this._user.currentUser.name,
+              lat: 116,
+              lon: 39,
+              height: undefined,
+              timestamp: undefined
+            };
+            return of(selfLocation);
           })
+
         );
       })
     );
