@@ -69,7 +69,6 @@ export class SignlarService {
       });
       this._signalrConnection.on('MessageReceive', (msg: MessageDto) => {
         this._broadcastService.msgExchangedBus.next(msg);
-        // this._signalrConnection.invoke('ReceivedMsg', this._timer.getMilliseconds) ;
       });
 
       this._signalrConnection.on('LoginInSuccess', (user: UserInfoDto) => {
@@ -145,8 +144,8 @@ export class SignlarService {
     if ( this._aliveLoop !== undefined) {
       this._aliveLoop.unsubscribe();
     }
-    this._aliveLoop = interval(5000).subscribe(() => {
-      this.aliveUser(this._user.currentUser);
+    this._aliveLoop = interval(10000).subscribe(() => {
+      this.aliveUser();
     });
 
   }
@@ -163,11 +162,12 @@ export class SignlarService {
       });
     }
 
-  public aliveUser(dto= this._user.currentUser) {
+  private aliveUser(dto= this._user.currentUser) {
     this.initSignalr().then(() => {
       this._signalrConnection.invoke('alive', dto )
       .catch(error => {
         console.error(error.toString());
+
       });
     });
   }
@@ -184,7 +184,7 @@ export class SignlarService {
     });
   }
 
-  public updateOnlineUsers() {
+  private updateOnlineUsers() {
     this.initSignalr().then(() => {
       this._signalrConnection.invoke('GetOnlineUsers', this._user.currentUser.guid)
       .catch(error => {
