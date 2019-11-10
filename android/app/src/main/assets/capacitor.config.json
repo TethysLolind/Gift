@@ -1,6 +1,6 @@
 {
-  "appId": "com.bozhang",
-  "appName": "gift",
+  "appId": "io.ionic.starter",
+  "appName": "photo-rc1",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",

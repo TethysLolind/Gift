@@ -87,6 +87,4 @@
     </edit-config>
     <plugin name="cordova-sqlite-storage" spec="^2.5.1" />
     <plugin name="cordova-plugin-camera" spec="~4.0.3" />
-    <engine name="android" spec="7.1.4" />
-    <engine name="ios" spec="4.5.5" />
 </widget>
