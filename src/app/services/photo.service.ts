@@ -57,7 +57,8 @@ export class PhotoService {
   }
 
   async loadSaved() {
-    return <Array<Photo>>await this.storage.get('photos');
+    const photos = < Array < Photo >> await this.storage.get('photos');
+    return photos ? photos : new Array < Photo > ();
   }
 
 
