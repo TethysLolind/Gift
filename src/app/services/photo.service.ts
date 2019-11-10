@@ -1,12 +1,25 @@
-import { Injectable } from '@angular/core';
+import {
+  Injectable
+} from '@angular/core';
 
-import { Storage } from '@ionic/storage';
+import {
+  Storage
+} from '@ionic/storage';
 
-import { Plugins, CameraResultType } from '@capacitor/core';
-import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import {
+  Plugins,
+  CameraResultType
+} from '@capacitor/core';
+import {
+  HttpClient
+} from '@angular/common/http';
+import {
+  map
+} from 'rxjs/operators';
 
-const { Camera } = Plugins;
+const {
+  Camera
+} = Plugins;
 
 
 
@@ -18,7 +31,7 @@ export class PhotoService {
 
   public photos: Photo[] = [];
 
-  constructor( private storage: Storage, private http: HttpClient) { }
+  constructor(private storage: Storage, private http: HttpClient) {}
 
   async takePicture() {
     const image = await Camera.getPhoto({
@@ -34,24 +47,22 @@ export class PhotoService {
     // Can be set to the src of an image now
     const newPhoto: Photo = {
       data: 'data:image/jpeg;base64,' + image.base64String,
-      text: 'dd'
+      text: imageUrl
     };
     this.photos.unshift(newPhoto);
 
-    const previousPhotos = await this.storage.get('photos');
+    const previousPhotos = await this.loadSaved();
     // Save all photos for later viewing
     this.storage.set('photos', [...previousPhotos, newPhoto]);
   }
 
-  async loadSaved(): Promise<Array<Photo>> {
-    return this.storage.get('photos').then((photos) => {
-      return photos;
-    });
+  async loadSaved() {
+    return <Array<Photo>>await this.storage.get('photos');
   }
 
 
-   getImages() {
-     const promiseArray = new Array<Promise<Blob>>();
+  getImages() {
+    const promiseArray = new Array < Promise < Blob >> ();
     // const imageBlobs = new Array<Blob>();
     for (let index = 0; index < 32; index++) {
       let fileName: string;
@@ -60,7 +71,9 @@ export class PhotoService {
       } else {
         fileName = (index + 1).toString();
       }
-     const promise = this.http.get('/assets/image/' + fileName + '.jpg', {responseType: 'blob'}). pipe(
+      const promise = this.http.get('/assets/image/' + fileName + '.jpg', {
+        responseType: 'blob'
+      }).pipe(
         map(res => {
           if (index === 1) {
             console.log(res);
