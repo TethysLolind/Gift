@@ -48,6 +48,9 @@ import {
 import {
   UserManageService
 } from '../services/user-manage.service';
+import {
+  UserStatus
+} from '../Model/userInfoDto';
 
 
 @Component({
