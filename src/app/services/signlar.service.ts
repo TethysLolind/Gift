@@ -74,12 +74,12 @@ export class SignlarService {
       this._signalrConnection.on('LoginInSuccess', (user: UserInfoDto) => {
         this.aliveLoop();
         this.updateUserLoop();
-        this._broadcastService.toastBus.next('login in success at ' + user.loginInTime);
+        this._broadcastService.toastBus.next('login in success ');
       });
 
       this._signalrConnection.on('LoginOutSuccess', (user: UserInfoDto) => {
         this._broadcastService.userBus.next(new Array<UserInfoDto>());
-        this._broadcastService.toastBus.next('login out success at ' + user.loginInTime);
+        this._broadcastService.toastBus.next('login out success');
       });
 
       this._signalrConnection.on('LoginInFail', (user: UserInfoDto) => {
@@ -152,10 +152,15 @@ export class SignlarService {
   }
 
   public loginOut(dto= this._user.currentUser) {
+    if ( this._aliveLoop !== undefined) {
+      this._aliveLoop.unsubscribe();
+    }
+    if ( this._updateUserSubscription !== undefined) {
+      this._updateUserSubscription.unsubscribe();
+    }
     this.initSignalr().then(() => {
         this._signalrConnection.invoke('loginOut', dto).then(() => {
-          this._aliveLoop.unsubscribe();
-          this._updateUserSubscription.unsubscribe();
+
         })
         .catch(error => {
           console.error(error.toString());
