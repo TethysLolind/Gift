@@ -1,4 +1,4 @@
-import { Component, OnInit, ApplicationRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ApplicationRef, OnDestroy, AfterViewInit } from '@angular/core';
 import { SwUpdate, UpdateAvailableEvent } from '@angular/service-worker';
 import { AlertController, ToastController } from '@ionic/angular';
 import { Subscription, interval, concat } from 'rxjs';
@@ -15,9 +15,7 @@ const { Network } = Plugins;
   templateUrl: 'tabs.page.html',
   styleUrls: ['tabs.page.scss']
 })
-export class TabsPage implements OnInit, OnDestroy {
-  status: any;
-  currentUser: UserInfoDto;
+export class TabsPage implements OnInit, OnDestroy , AfterViewInit {
   constructor(private updateService: SwUpdate,
 
     private signalrService: SignlarService,
@@ -27,7 +25,12 @@ export class TabsPage implements OnInit, OnDestroy {
     private appRef: ApplicationRef,
     ) {
   }
+  status: any;
+  currentUser: UserInfoDto;
   subscriptions: Subscription[] = [];
+  ngAfterViewInit(): void {
+   this.musicOn();
+  }
 
   ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe());
@@ -36,6 +39,11 @@ export class TabsPage implements OnInit, OnDestroy {
   ngOnInit() {
     this.monitorNetwork();
     this.monitorChatStatus();
+  }
+
+  private musicOn() {
+    const myAudio = document.getElementById('myaudio') as HTMLAudioElement;
+    myAudio.play();
   }
 
 
