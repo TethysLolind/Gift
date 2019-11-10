@@ -32,18 +32,20 @@ export class PhotoService {
     // if desired (or pass resultType: CameraResultType.Base64 to getPhoto)
     const imageUrl = image.webPath;
     // Can be set to the src of an image now
-    this.photos.unshift({
+    const newPhoto: Photo = {
       data: 'data:image/jpeg;base64,' + image.base64String,
       text: 'dd'
-    });
+    };
+    this.photos.unshift(newPhoto);
 
+    const previousPhotos = await this.storage.get('photos');
     // Save all photos for later viewing
-    this.storage.set('photos', this.photos);
+    this.storage.set('photos', [...previousPhotos, newPhoto]);
   }
 
-  loadSaved() {
-    this.storage.get('photos').then((photos) => {
-      this.photos = photos || [];
+  async loadSaved(): Promise<Array<Photo>> {
+    return this.storage.get('photos').then((photos) => {
+      return photos;
     });
   }
 

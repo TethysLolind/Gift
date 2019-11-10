@@ -29,12 +29,12 @@ export class Tab2Page implements OnInit {
       };
       return photo;
     });
-    this.photoService.photos = photos;
-
-
-
+    const previousPhotos = await this.photoService.loadSaved();
+    this.photoService.photos = [ ...photos, ...previousPhotos];
 
 
 
   }
+
+
 }
