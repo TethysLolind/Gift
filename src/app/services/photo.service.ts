@@ -65,7 +65,7 @@ export class PhotoService {
   getImages() {
     const promiseArray = new Array < Promise < Blob >> ();
     // const imageBlobs = new Array<Blob>();
-    for (let index = 0; index < 32; index++) {
+    for (let index = 0; index < 33; index++) {
       let fileName: string;
       if (index < 9) {
         fileName = '0' + (index + 1);
