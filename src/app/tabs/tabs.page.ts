@@ -44,6 +44,8 @@ export class TabsPage implements OnInit, OnDestroy , AfterViewInit {
   private musicOn() {
     const myAudio = document.getElementById('myaudio') as HTMLAudioElement;
     myAudio.play();
+
+
   }
 
 
