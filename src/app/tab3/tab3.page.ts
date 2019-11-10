@@ -146,15 +146,16 @@ export class Tab3Page implements OnInit {
 
     this._broadcast.locationBus.
     pipe(
-      filter(locs => locs !== undefined)
+      filter(locs => locs !== undefined),
     //   combineLatest(this.selfLocationUpdateSignalr),
     //   map(([locs, selfloc]) => {
     //     return [...locs, selfloc];
     //   })
     ).
     subscribe(locs => {
+      const ctlocs = locs.filter(loc => loc.guid === this._user.targetUser.guid || loc.guid === this._user.currentUser.guid);
       const receiveMarkers = [];
-      locs.forEach(loc => {
+      ctlocs.forEach(loc => {
           const marker = {
             options: {
               icon: {
