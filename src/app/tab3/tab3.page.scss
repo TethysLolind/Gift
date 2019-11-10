@@ -1,11 +1,18 @@
-
- baidu-map {
+baidu-map {
     width: 800px;
     height: 290px;
 }
 
-.loc{
+.loc {
     position: float;
     bottom: 0%;
+    right: 0%;
+}
+
+#panel {
+    position: fixed;
+    z-index: 999;
+
+    top: 0%;
     right: 0%;
 }

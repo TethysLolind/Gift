@@ -7,25 +7,26 @@
 </ion-header>
 
 <ion-content>
+    <ion-label id="panel" *ngIf=" hasTarget">Distance : {{distanceIn}} km</ion-label>
   <baidu-map [options]="opts">
-     <!--<marker [point]="point" [options]="markOpts" (loaded)="" (clicked)=""></marker>-->
-  <marker *ngFor="let marker of markers" [point]="marker.point" [options]="marker.options"></marker>
-  <!--导航控件-->
-  <control type="navigation" [options]="controlOpts"></control>
-  <!--地图全景控件-->
-  <control type="overviewmap" [options]="overviewmapOpts"></control>
-  <!--比例尺-->
-  <control type="scale" [options]="scaleOpts"></control>
-  <!--地图类型-->
-  <control type="maptype" [options]="mapTypeOpts"></control>
-  <control type="geolocation" ></control>
+    <!--<marker [point]="point" [options]="markOpts" (loaded)="" (clicked)=""></marker>-->
+    <marker *ngFor="let marker of markers" [point]="marker.point" [options]="marker.options"></marker>
+    <!--导航控件-->
+    <control type="navigation" [options]="controlOpts"></control>
+    <!--地图全景控件-->
+    <control type="overviewmap" [options]="overviewmapOpts"></control>
+    <!--比例尺-->
+    <control type="scale" [options]="scaleOpts"></control>
+    <!--地图类型-->
+    <control type="maptype" [options]="mapTypeOpts"></control>
+    <control type="geolocation"></control>
   </baidu-map>
 
-  
+
   <ion-fab vertical="bottom" horizontal="center" slot="fixed">
     <ion-fab-button (click)="getLocation()">
       <ion-icon name="locate"></ion-icon>
     </ion-fab-button>
-</ion-fab>
+  </ion-fab>
 
 </ion-content>

@@ -34,12 +34,12 @@ export class SignlarService {
 
 
   public updateLocation(loc: GeoLocationDto) {
-    this.initSignalr().then(() => {
+    if (this._signalrConnection !== undefined && this._signalrConnection.state === signalR.HubConnectionState.Connected) {
       this._signalrConnection.invoke('UpdateLocation', loc)
       .catch(error => {
         console.error(error.toString());
       });
-    });
+    }
   }
 
 
@@ -164,13 +164,15 @@ export class SignlarService {
     }
 
   private aliveUser(dto= this._user.currentUser) {
-    this.initSignalr().then(() => {
+
+    if (this._signalrConnection !== undefined && this._signalrConnection.state === signalR.HubConnectionState.Connected) {
       this._signalrConnection.invoke('alive', dto )
       .catch(error => {
         console.error(error.toString());
 
       });
-    });
+    }
+
   }
 
 
@@ -186,14 +188,12 @@ export class SignlarService {
   }
 
   private updateOnlineUsers() {
-    this.initSignalr().then(() => {
+    if (this._signalrConnection !== undefined && this._signalrConnection.state === signalR.HubConnectionState.Connected) {
       this._signalrConnection.invoke('GetOnlineUsers', this._user.currentUser.guid)
       .catch(error => {
         console.error(error.toString());
       });
-    });
-
-
+    }
 
   }
 

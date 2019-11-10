@@ -4,10 +4,10 @@
 
 export const environment = {
   production: false,
-  signalrUrl: 'http://localhost:23229/api/v1/msgHub',
-  chatApi: 'http://localhost:23229/api/v1/chat',
-  // signalrUrl: 'https://giftxin.azurewebsites.net/api/v1/msgHub',
-  // chatApi: 'https://giftxin.azurewebsites.net/api/v1/chat',
+  // signalrUrl: 'http://localhost:23229/api/v1/msgHub',
+  // chatApi: 'http://localhost:23229/api/v1/chat',
+  signalrUrl: 'https://giftxin.azurewebsites.net/api/v1/msgHub',
+  chatApi: 'https://giftxin.azurewebsites.net/api/v1/chat',
   clearMsg: 'clearMsg'
 };
 
